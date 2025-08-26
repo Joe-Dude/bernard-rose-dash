@@ -45,7 +45,7 @@ export const SaintBernardGame = () => {
               <div className="bg-black/20 p-4 rounded-xl mb-6">
                 <p className="font-semibold mb-2">🎮 Controls:</p>
                 <p className="mb-1">← → Arrow Keys - Move</p>
-                <p>🚀 Spacebar - Jump</p>
+                <p>⬆️ Up Arrow - Jump</p>
               </div>
               
               <div className="text-sm space-y-1 mb-6">

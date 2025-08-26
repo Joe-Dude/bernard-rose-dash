@@ -49,19 +49,17 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
     },
 
     platforms: [
-      // Ground platforms
-      {x: 0, y: 400, width: 250, height: 100, type: 'grass'},
-      {x: 300, y: 400, width: 180, height: 100, type: 'grass'},
-      {x: 530, y: 400, width: 220, height: 100, type: 'grass'},
-      {x: 800, y: 400, width: 180, height: 100, type: 'grass'},
-      {x: 1030, y: 400, width: 200, height: 100, type: 'grass'},
-      {x: 1280, y: 400, width: 180, height: 100, type: 'grass'},
-      {x: 1510, y: 400, width: 220, height: 100, type: 'grass'},
-      {x: 1780, y: 400, width: 180, height: 100, type: 'grass'},
-      {x: 2010, y: 400, width: 200, height: 100, type: 'grass'},
-      {x: 2260, y: 400, width: 180, height: 100, type: 'grass'},
-      {x: 2490, y: 400, width: 220, height: 100, type: 'grass'},
-      {x: 2760, y: 400, width: 500, height: 100, type: 'grass'},
+      // Ground platforms with bigger gaps (pitfalls)
+      {x: 0, y: 400, width: 200, height: 100, type: 'grass'},
+      {x: 350, y: 400, width: 150, height: 100, type: 'grass'},
+      {x: 650, y: 400, width: 180, height: 100, type: 'grass'},
+      {x: 980, y: 400, width: 140, height: 100, type: 'grass'},
+      {x: 1280, y: 400, width: 160, height: 100, type: 'grass'},
+      {x: 1600, y: 400, width: 150, height: 100, type: 'grass'},
+      {x: 1900, y: 400, width: 170, height: 100, type: 'grass'},
+      {x: 2220, y: 400, width: 140, height: 100, type: 'grass'},
+      {x: 2520, y: 400, width: 180, height: 100, type: 'grass'},
+      {x: 2850, y: 400, width: 450, height: 100, type: 'grass'},
       
       // Floating platforms
       {x: 350, y: 320, width: 120, height: 25, type: 'wood'},
@@ -92,12 +90,21 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
     ],
 
     hairGelBottles: [
-      {x: 450, y: 370, sparks: []},
-      {x: 720, y: 370, sparks: []},
-      {x: 1100, y: 370, sparks: []},
-      {x: 1580, y: 370, sparks: []},
-      {x: 2080, y: 370, sparks: []},
-      {x: 2580, y: 370, sparks: []}
+      // Ground level gel bottles
+      {x: 280, y: 370, sparks: []}, // In first pitfall
+      {x: 550, y: 370, sparks: []}, // In second pitfall  
+      {x: 890, y: 370, sparks: []}, // In third pitfall
+      {x: 1190, y: 370, sparks: []}, // In fourth pitfall
+      {x: 1520, y: 370, sparks: []}, // In fifth pitfall
+      {x: 1820, y: 370, sparks: []}, // In sixth pitfall
+      {x: 2150, y: 370, sparks: []}, // In seventh pitfall
+      {x: 2450, y: 370, sparks: []}, // In eighth pitfall
+      
+      // Platform gel bottles - more dangerous!
+      {x: 375, y: 295, sparks: []}, // On first floating platform
+      {x: 920, y: 295, sparks: []}, // On third floating platform
+      {x: 1420, y: 295, sparks: []}, // On fifth floating platform
+      {x: 2420, y: 295, sparks: []} // On ninth floating platform
     ],
 
     clouds: [
@@ -472,8 +479,8 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
         state.player.velX *= 0.85;
       }
 
-      // Jumping
-      if (state.keys[' '] && state.player.grounded) {
+      // Jumping with up arrow key
+      if (state.keys['ArrowUp'] && state.player.grounded) {
         state.player.velY = -18;
         state.player.jumping = true;
         state.player.grounded = false;
@@ -491,7 +498,7 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
         }
       }
 
-      if (!state.keys[' '] && state.player.velY < 0) {
+      if (!state.keys['ArrowUp'] && state.player.velY < 0) {
         state.player.velY *= 0.6;
       }
 
@@ -502,19 +509,41 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
       state.player.x += state.player.velX;
       state.player.y += state.player.velY;
 
-      // Platform collision
+      // Enhanced platform collision - solid platforms
       state.player.grounded = false;
       for (let platform of state.platforms) {
+        // Check if player overlaps with platform
         if (state.player.x < platform.x + platform.width &&
             state.player.x + state.player.width > platform.x &&
-            state.player.y + state.player.height > platform.y &&
-            state.player.y + state.player.height < platform.y + platform.height + 25) {
+            state.player.y < platform.y + platform.height &&
+            state.player.y + state.player.height > platform.y) {
           
-          if (state.player.velY > 0) {
+          // Landing on top (falling down)
+          if (state.player.velY > 0 && 
+              state.player.y < platform.y && 
+              state.player.y + state.player.height <= platform.y + 15) {
             state.player.y = platform.y - state.player.height;
             state.player.velY = 0;
             state.player.grounded = true;
             state.player.jumping = false;
+          }
+          // Hitting from below (jumping up)
+          else if (state.player.velY < 0 && 
+                   state.player.y > platform.y + platform.height - 15) {
+            state.player.y = platform.y + platform.height;
+            state.player.velY = 0;
+          }
+          // Hitting from left side
+          else if (state.player.velX > 0 && 
+                   state.player.x < platform.x) {
+            state.player.x = platform.x - state.player.width;
+            state.player.velX = 0;
+          }
+          // Hitting from right side
+          else if (state.player.velX < 0 && 
+                   state.player.x > platform.x + platform.width) {
+            state.player.x = platform.x + platform.width;
+            state.player.velX = 0;
           }
         }
       }
@@ -557,6 +586,14 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
             const newLives = lives - 1;
             setLives(newLives);
             state.player.invulnerable = 120;
+            
+            // If player dies while holding rose, reset rose
+            if (state.rose.collected && newLives <= 0) {
+              state.rose.collected = false;
+              state.rose.x = 3200;
+              state.rose.y = 250;
+              state.rose.sparkles = [];
+            }
             
             // Damage particles
             for (let i = 0; i < 20; i++) {
@@ -636,11 +673,19 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
         }
       }
 
-      // Pitfall detection
+      // Pitfall detection with rose reset
       if (state.player.y > 550) {
         const newLives = lives - 1;
         setLives(newLives);
         state.player.invulnerable = 60;
+        
+        // If player dies while holding rose, reset rose
+        if (state.rose.collected && newLives <= 0) {
+          state.rose.collected = false;
+          state.rose.x = 3200;
+          state.rose.y = 250;
+          state.rose.sparkles = [];
+        }
         
         if (newLives <= 0) {
           setLives(3);
