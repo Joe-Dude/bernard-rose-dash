@@ -26,7 +26,8 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					glow: 'hsl(var(--primary-glow))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -52,6 +53,20 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				game: {
+					'sky-start': 'hsl(var(--game-sky-start))',
+					'sky-mid': 'hsl(var(--game-sky-mid))',
+					'sky-end': 'hsl(var(--game-sky-end))',
+					'sunset': 'hsl(var(--game-sunset))',
+					'dog-brown': 'hsl(var(--dog-brown))',
+					'dog-gold': 'hsl(var(--dog-gold))',
+					'grass-green': 'hsl(var(--grass-green))',
+					'wood-brown': 'hsl(var(--wood-brown))',
+					'gummy-pink': 'hsl(var(--gummy-pink))',
+					'gel-blue': 'hsl(var(--gel-blue))',
+					'rose-white': 'hsl(var(--rose-white))',
+					'danger-red': 'hsl(var(--danger-red))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -62,6 +77,21 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			backgroundImage: {
+				'gradient-sky': 'var(--gradient-sky)',
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-game': 'var(--gradient-game)',
+				'gradient-magical': 'var(--gradient-magical)'
+			},
+			boxShadow: {
+				'magical': 'var(--shadow-magical)',
+				'glow': 'var(--shadow-glow)',
+				'game': 'var(--shadow-game)'
+			},
+			transitionTimingFunction: {
+				'magical': 'var(--transition-magical)',
+				'bounce': 'var(--transition-bounce)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
