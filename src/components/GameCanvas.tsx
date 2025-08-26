@@ -90,21 +90,21 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
     ],
 
     hairGelBottles: [
-      // Ground level gel bottles
-      {x: 280, y: 370, sparks: []}, // In first pitfall
-      {x: 550, y: 370, sparks: []}, // In second pitfall  
-      {x: 890, y: 370, sparks: []}, // In third pitfall
-      {x: 1190, y: 370, sparks: []}, // In fourth pitfall
-      {x: 1520, y: 370, sparks: []}, // In fifth pitfall
-      {x: 1820, y: 370, sparks: []}, // In sixth pitfall
-      {x: 2150, y: 370, sparks: []}, // In seventh pitfall
-      {x: 2450, y: 370, sparks: []}, // In eighth pitfall
+      // Ground level gel bottles - positioned on solid platforms
+      {x: 120, y: 370, sparks: []}, // On first platform
+      {x: 420, y: 370, sparks: []}, // On second platform  
+      {x: 720, y: 370, sparks: []}, // On third platform
+      {x: 1050, y: 370, sparks: []}, // On fourth platform
+      {x: 1350, y: 370, sparks: []}, // On fifth platform
+      {x: 1970, y: 370, sparks: []}, // On seventh platform
+      {x: 2290, y: 370, sparks: []}, // On eighth platform
+      {x: 2590, y: 370, sparks: []}, // On ninth platform
       
-      // Platform gel bottles - more dangerous!
-      {x: 375, y: 295, sparks: []}, // On first floating platform
-      {x: 920, y: 295, sparks: []}, // On third floating platform
-      {x: 1420, y: 295, sparks: []}, // On fifth floating platform
-      {x: 2420, y: 295, sparks: []} // On ninth floating platform
+      // Platform gel bottles - positioned to not overlap clusters
+      {x: 390, y: 295, sparks: []}, // On first floating platform (offset from cluster)
+      {x: 940, y: 295, sparks: []}, // On third floating platform (offset from cluster)
+      {x: 1440, y: 295, sparks: []}, // On fifth floating platform (offset from cluster)
+      {x: 2440, y: 295, sparks: []} // On ninth floating platform (offset from cluster)
     ],
 
     clouds: [
@@ -212,45 +212,66 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
         ctx.translate(-centerX * 2, 0);
       }
 
-      // Shadow
-      ctx.fillStyle = 'rgba(0,0,0,0.2)';
+      // Enhanced shadow with soft edges
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
       ctx.beginPath();
-      ctx.ellipse(player.x + player.width/2, player.y + player.height + 5, player.width/2, 8, 0, 0, Math.PI * 2);
+      ctx.ellipse(player.x + player.width/2, player.y + player.height + 5, player.width/2, 10, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Body
-      ctx.fillStyle = '#daa520';
+      // Body with gradient effect
+      const bodyGradient = ctx.createLinearGradient(player.x, player.y + 25, player.x, player.y + 50);
+      bodyGradient.addColorStop(0, '#daa520');
+      bodyGradient.addColorStop(1, '#b8860b');
+      ctx.fillStyle = bodyGradient;
       ctx.fillRect(player.x, player.y + 25, player.width - 15, 25);
       
-      // Head
-      ctx.fillStyle = '#8b4513';
+      // Head with gradient
+      const headGradient = ctx.createLinearGradient(player.x + 40, player.y, player.x + 40, player.y + 30);
+      headGradient.addColorStop(0, '#8b4513');
+      headGradient.addColorStop(1, '#654321');
+      ctx.fillStyle = headGradient;
       ctx.fillRect(player.x + 40, player.y, 30, 30);
       
-      // White markings
+      // White markings with soft edges
       ctx.fillStyle = '#fff';
       ctx.fillRect(player.x + 43, player.y + 3, 24, 20);
       ctx.fillRect(player.x + 5, player.y + 28, 25, 18);
       
-      // Nose
+      // Enhanced nose with highlight
       ctx.fillStyle = '#000';
       ctx.fillRect(player.x + 65, player.y + 15, 4, 3);
+      ctx.fillStyle = '#333';
+      ctx.fillRect(player.x + 66, player.y + 16, 2, 1);
       
-      // Eyes
-      ctx.fillRect(player.x + 45, player.y + 8, 3, 3);
-      ctx.fillRect(player.x + 58, player.y + 8, 3, 3);
+      // Eyes with pupils and highlights
+      ctx.fillStyle = '#000';
+      ctx.fillRect(player.x + 45, player.y + 8, 4, 4);
+      ctx.fillRect(player.x + 58, player.y + 8, 4, 4);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(player.x + 46, player.y + 9, 1, 1);
+      ctx.fillRect(player.x + 59, player.y + 9, 1, 1);
       
-      // Legs with animation
-      const legOffset = Math.sin(animationFrame * 0.3) * 2;
-      ctx.fillStyle = '#daa520';
-      ctx.fillRect(player.x + 8, player.y + 40 + legOffset, 10, 15);
-      ctx.fillRect(player.x + 25, player.y + 40 - legOffset, 10, 15);
-      ctx.fillRect(player.x + 42, player.y + 40 + legOffset, 10, 15);
-      ctx.fillRect(player.x + 55, player.y + 40 - legOffset, 10, 15);
+      // Legs with enhanced animation
+      const legOffset = Math.sin(animationFrame * 0.3) * 3;
+      const legGradient = ctx.createLinearGradient(0, player.y + 40, 0, player.y + 55);
+      legGradient.addColorStop(0, '#daa520');
+      legGradient.addColorStop(1, '#b8860b');
+      ctx.fillStyle = legGradient;
+      ctx.fillRect(player.x + 8, player.y + 40 + legOffset, 12, 15);
+      ctx.fillRect(player.x + 25, player.y + 40 - legOffset, 12, 15);
+      ctx.fillRect(player.x + 42, player.y + 40 + legOffset, 12, 15);
+      ctx.fillRect(player.x + 55, player.y + 40 - legOffset, 12, 15);
 
-      // Tail wagging
-      const tailWag = Math.sin(animationFrame * 0.4) * 10;
+      // Enhanced tail with curve
+      const tailWag = Math.sin(animationFrame * 0.4) * 12;
+      const tailCurve = Math.cos(animationFrame * 0.4) * 3;
       ctx.fillStyle = '#8b4513';
-      ctx.fillRect(player.x - 8 + tailWag, player.y + 20, 12, 4);
+      ctx.fillRect(player.x - 10 + tailWag, player.y + 18 + tailCurve, 15, 6);
+      
+      // Ears
+      ctx.fillStyle = '#8b4513';
+      ctx.fillRect(player.x + 38, player.y - 5, 8, 12);
+      ctx.fillRect(player.x + 64, player.y - 5, 8, 12);
 
       ctx.restore();
     };
@@ -347,14 +368,14 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
 
     const drawHairGelBottles = () => {
       gameStateRef.current.hairGelBottles.forEach(bottle => {
-        // Add danger sparks
-        if (Math.random() < 0.2) {
+        // Add enhanced danger sparks
+        if (Math.random() < 0.3) {
           bottle.sparks.push({
             x: bottle.x + Math.random() * 25,
             y: bottle.y + Math.random() * 35,
-            life: 20,
-            velX: (Math.random() - 0.5) * 2,
-            velY: Math.random() * -2
+            life: 25,
+            velX: (Math.random() - 0.5) * 3,
+            velY: Math.random() * -3
           });
         }
         
@@ -366,26 +387,44 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
           return spark.life > 0;
         });
         
-        // Draw sparks
+        // Draw enhanced sparks
         bottle.sparks.forEach((spark: any) => {
-          ctx.fillStyle = `rgba(255, 0, 0, ${spark.life / 20})`;
-          ctx.fillRect(spark.x, spark.y, 2, 2);
+          const alpha = spark.life / 25;
+          ctx.fillStyle = `rgba(255, 50, 50, ${alpha})`;
+          ctx.fillRect(spark.x, spark.y, 3, 3);
         });
         
-        // Bottle
-        ctx.fillStyle = '#4169e1';
+        // Bottle with glow effect
+        ctx.shadowColor = '#4169e1';
+        ctx.shadowBlur = 8;
+        
+        // Bottle gradient
+        const bottleGradient = ctx.createLinearGradient(bottle.x, bottle.y, bottle.x + 25, bottle.y + 35);
+        bottleGradient.addColorStop(0, '#6495ed');
+        bottleGradient.addColorStop(0.5, '#4169e1');
+        bottleGradient.addColorStop(1, '#191970');
+        ctx.fillStyle = bottleGradient;
         ctx.fillRect(bottle.x, bottle.y, 25, 35);
         
-        // Cap
-        ctx.fillStyle = '#000080';
+        // Cap with metallic effect
+        const capGradient = ctx.createLinearGradient(bottle.x + 5, bottle.y - 5, bottle.x + 20, bottle.y + 3);
+        capGradient.addColorStop(0, '#333');
+        capGradient.addColorStop(0.5, '#000080');
+        capGradient.addColorStop(1, '#000');
+        ctx.fillStyle = capGradient;
         ctx.fillRect(bottle.x + 5, bottle.y - 5, 15, 8);
         
-        // Label
+        // Enhanced label with warning symbol
         ctx.fillStyle = '#fff';
-        ctx.fillRect(bottle.x + 3, bottle.y + 10, 19, 15);
+        ctx.fillRect(bottle.x + 3, bottle.y + 8, 19, 18);
+        ctx.fillStyle = '#ff0000';
+        ctx.font = 'bold 6px Arial';
+        ctx.fillText('⚠ GEL', bottle.x + 5, bottle.y + 16);
         ctx.fillStyle = '#000';
-        ctx.font = '8px Arial';
-        ctx.fillText('GEL', bottle.x + 7, bottle.y + 20);
+        ctx.font = '6px Arial';
+        ctx.fillText('DANGER', bottle.x + 4, bottle.y + 23);
+        
+        ctx.shadowBlur = 0;
       });
     };
 
@@ -688,19 +727,29 @@ export const GameCanvas = ({ gameStarted, onGameWin }: GameCanvasProps) => {
         }
         
         if (newLives <= 0) {
-          setLives(3);
-          setScore(0);
-          state.gummyClusters.forEach(cluster => {
-            cluster.collected = false;
-            cluster.sparkles = [];
-          });
+          // Full reset when losing last life
+          setTimeout(() => {
+            setLives(3);
+            setScore(0);
+            state.player.x = 100;
+            state.player.y = 300;
+            state.player.velX = 0;
+            state.player.velY = 0;
+            state.player.invulnerable = 0;
+            state.camera.x = 0;
+            state.particles = [];
+            state.gummyClusters.forEach(cluster => {
+              cluster.collected = false;
+              cluster.sparkles = [];
+            });
+          }, 500);
+        } else {
+          // Respawn at nearest safe platform
+          state.player.x = Math.max(100, state.camera.x);
+          state.player.y = 200;
+          state.player.velX = 0;
+          state.player.velY = 0;
         }
-        
-        // Respawn
-        state.player.x = Math.max(100, state.camera.x);
-        state.player.y = 200;
-        state.player.velX = 0;
-        state.player.velY = 0;
       }
 
       // Camera
