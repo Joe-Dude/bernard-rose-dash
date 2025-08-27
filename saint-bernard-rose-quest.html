@@ -449,34 +449,178 @@
         function drawOwner() {
             if (gameWon && camera.x > 200) return;
             
-            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            // Enhanced shadow with soft gradient
+            const shadowGradient = ctx.createRadialGradient(owner.x + owner.width/2, owner.y + owner.height + 5, 0, owner.x + owner.width/2, owner.y + owner.height + 5, owner.width/2);
+            shadowGradient.addColorStop(0, 'rgba(0,0,0,0.3)');
+            shadowGradient.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = shadowGradient;
             ctx.beginPath();
             ctx.ellipse(owner.x + owner.width/2, owner.y + owner.height + 5, owner.width/2, 8, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Dress
-            ctx.fillStyle = '#ff69b4';
-            ctx.fillRect(owner.x + 5, owner.y + 35, owner.width - 10, 35);
+            // Beautiful dress with gradient and pattern
+            const dressGradient = ctx.createLinearGradient(owner.x, owner.y + 35, owner.x, owner.y + 70);
+            dressGradient.addColorStop(0, '#ff1493');
+            dressGradient.addColorStop(0.5, '#ff69b4');
+            dressGradient.addColorStop(1, '#c71585');
+            ctx.fillStyle = dressGradient;
+            ctx.fillRect(owner.x + 3, owner.y + 35, owner.width - 6, 35);
             
-            // Head
+            // Dress pattern - small flowers
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 2; j++) {
+                    const flowerX = owner.x + 8 + i * 12;
+                    const flowerY = owner.y + 42 + j * 15;
+                    ctx.beginPath();
+                    ctx.arc(flowerX, flowerY, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Flower petals
+                    ctx.beginPath();
+                    ctx.arc(flowerX - 2, flowerY, 1, 0, Math.PI * 2);
+                    ctx.arc(flowerX + 2, flowerY, 1, 0, Math.PI * 2);
+                    ctx.arc(flowerX, flowerY - 2, 1, 0, Math.PI * 2);
+                    ctx.arc(flowerX, flowerY + 2, 1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // Arms with sleeves
+            const armGradient = ctx.createLinearGradient(0, owner.y + 30, 0, owner.y + 55);
+            armGradient.addColorStop(0, '#ff69b4');
+            armGradient.addColorStop(1, '#c71585');
+            ctx.fillStyle = armGradient;
+            ctx.fillRect(owner.x - 2, owner.y + 30, 8, 25); // Left arm
+            ctx.fillRect(owner.x + 39, owner.y + 30, 8, 25); // Right arm
+            
+            // Hands
             ctx.fillStyle = '#ffdbac';
-            ctx.fillRect(owner.x + 8, owner.y + 5, 30, 32);
+            ctx.beginPath();
+            ctx.arc(owner.x + 2, owner.y + 55, 4, 0, Math.PI * 2);
+            ctx.arc(owner.x + 43, owner.y + 55, 4, 0, Math.PI * 2);
+            ctx.fill();
             
-            // Hair
-            ctx.fillStyle = '#ff6347';
-            ctx.fillRect(owner.x + 3, owner.y, 40, 20);
+            // Head with better shape and gradient
+            const headGradient = ctx.createRadialGradient(owner.x + 20, owner.y + 18, 2, owner.x + 23, owner.y + 21, 18);
+            headGradient.addColorStop(0, '#ffe4d1');
+            headGradient.addColorStop(1, '#ffdbac');
+            ctx.fillStyle = headGradient;
+            ctx.beginPath();
+            ctx.ellipse(owner.x + 23, owner.y + 21, 18, 16, 0, 0, Math.PI * 2);
+            ctx.fill();
             
-            // Eyes
+            // Beautiful hair with layers and highlights
+            const hairGradient = ctx.createLinearGradient(owner.x, owner.y - 5, owner.x, owner.y + 25);
+            hairGradient.addColorStop(0, '#ff4500');
+            hairGradient.addColorStop(0.3, '#ff6347');
+            hairGradient.addColorStop(1, '#cd5700');
+            ctx.fillStyle = hairGradient;
+            
+            // Hair base
+            ctx.beginPath();
+            ctx.ellipse(owner.x + 23, owner.y + 10, 22, 15, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Hair bangs with curves
+            ctx.beginPath();
+            ctx.moveTo(owner.x + 5, owner.y + 8);
+            ctx.quadraticCurveTo(owner.x + 15, owner.y - 2, owner.x + 25, owner.y + 5);
+            ctx.quadraticCurveTo(owner.x + 35, owner.y - 2, owner.x + 41, owner.y + 8);
+            ctx.lineTo(owner.x + 41, owner.y + 15);
+            ctx.lineTo(owner.x + 5, owner.y + 15);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Hair highlights
+            ctx.fillStyle = '#ff7f50';
+            ctx.beginPath();
+            ctx.ellipse(owner.x + 18, owner.y + 8, 8, 4, -0.3, 0, Math.PI * 2);
+            ctx.ellipse(owner.x + 28, owner.y + 12, 6, 3, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Beautiful eyes with eyelashes
+            ctx.fillStyle = '#87ceeb'; // Light blue eyes
+            ctx.beginPath();
+            ctx.ellipse(owner.x + 16, owner.y + 18, 3, 2, 0, 0, Math.PI * 2);
+            ctx.ellipse(owner.x + 30, owner.y + 18, 3, 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Pupils
             ctx.fillStyle = '#000';
-            ctx.fillRect(owner.x + 13, owner.y + 15, 3, 3);
-            ctx.fillRect(owner.x + 28, owner.y + 15, 3, 3);
+            ctx.beginPath();
+            ctx.arc(owner.x + 16, owner.y + 18, 2, 0, Math.PI * 2);
+            ctx.arc(owner.x + 30, owner.y + 18, 2, 0, Math.PI * 2);
+            ctx.fill();
             
-            // Smile
+            // Eye highlights
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(owner.x + 17, owner.y + 17, 1, 0, Math.PI * 2);
+            ctx.arc(owner.x + 31, owner.y + 17, 1, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyelashes
             ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            for (let i = -1; i <= 1; i++) {
+                ctx.beginPath();
+                ctx.moveTo(owner.x + 16 + i * 2, owner.y + 16);
+                ctx.lineTo(owner.x + 16 + i * 2, owner.y + 14);
+                ctx.moveTo(owner.x + 30 + i * 2, owner.y + 16);
+                ctx.lineTo(owner.x + 30 + i * 2, owner.y + 14);
+                ctx.stroke();
+            }
+            
+            // Eyebrows
+            ctx.strokeStyle = '#cd5700';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(owner.x + 23, owner.y + 22, 8, 0.2, Math.PI - 0.2);
+            ctx.moveTo(owner.x + 12, owner.y + 14);
+            ctx.quadraticCurveTo(owner.x + 16, owner.y + 13, owner.x + 20, owner.y + 14);
+            ctx.moveTo(owner.x + 26, owner.y + 14);
+            ctx.quadraticCurveTo(owner.x + 30, owner.y + 13, owner.x + 34, owner.y + 14);
             ctx.stroke();
+            
+            // Rosy cheeks
+            ctx.fillStyle = '#ffb6c1';
+            ctx.globalAlpha = 0.6;
+            ctx.beginPath();
+            ctx.ellipse(owner.x + 11, owner.y + 23, 3, 2, 0, 0, Math.PI * 2);
+            ctx.ellipse(owner.x + 35, owner.y + 23, 3, 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            
+            // Nose
+            ctx.fillStyle = '#ffb6c1';
+            ctx.beginPath();
+            ctx.ellipse(owner.x + 23, owner.y + 22, 1.5, 1, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Beautiful smile with lips
+            ctx.fillStyle = '#ff69b4';
+            ctx.beginPath();
+            ctx.ellipse(owner.x + 23, owner.y + 26, 6, 2, 0, 0, Math.PI);
+            ctx.fill();
+            
+            // Smile highlight
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(owner.x + 23, owner.y + 26, 5, 0.3, Math.PI - 0.3);
+            ctx.stroke();
+            
+            // Simple necklace
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(owner.x + 23, owner.y + 32, 12, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+            
+            // Pendant
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(owner.x + 23, owner.y + 35, 2, 0, Math.PI * 2);
+            ctx.fill();
         }
 
         function drawPlatforms() {
