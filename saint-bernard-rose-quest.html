@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saint Bernard's Rose Quest - A Magical Adventure Game</title>
+    <meta name="description" content="Help the brave Saint Bernard find the magical white rose in this enchanting platformer adventure. Collect gummy clusters, avoid dangers, and complete the quest!" />
+    <meta name="author" content="Lovable" />
+    <meta name="keywords" content="Saint Bernard, Rose Quest, platformer game, adventure, magical, browser game, canvas game" />
+    
+    <meta property="og:title" content="Saint Bernard's Rose Quest - A Magical Adventure Game" />
+    <meta property="og:description" content="Help the brave Saint Bernard find the magical white rose in this enchanting platformer adventure. Collect gummy clusters, avoid dangers, and complete the quest!" />
+    <meta property="og:type" content="website" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #ff6b35, #f7931e, #ffd700);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #gameContainer {
+            position: relative;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            display: block;
+            background: linear-gradient(to bottom, #87ceeb 0%, #ffd700 30%, #ff8c42 70%, #ff6b35 100%);
+        }
+
+        #ui {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            color: #fff;
+            font-size: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 10;
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        #ui .ui-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        #ui .ui-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #progressBar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            width: 200px;
+            overflow: hidden;
+        }
+
+        #progress {
+            background: #ffd700;
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        #instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(160, 82, 45, 0.95));
+            color: #fff;
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            font-size: 18px;
+            z-index: 100;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border: 2px solid #ffd700;
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+        }
+
+        #winMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.95), rgba(255, 140, 66, 0.95));
+            color: #fff;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            font-size: 24px;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 3px solid #ffd700;
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            background: linear-gradient(45deg, #f7931e, #ff6b35);
+        }
+
+        .heart {
+            color: #ff1493;
+            font-size: 1.2em;
+        }
+
+        .controls-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .game-rules {
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="900" height="500"></canvas>
+        
+        <div id="ui">
+            <div class="ui-row">
+                <div class="ui-item">
+                    <span>🍬</span>
+                    <span>Gummy Clusters: <span id="score">0</span></span>
+                </div>
+                <div class="ui-item">
+                    <span class="heart">❤️</span>
+                    <span>Lives: <span id="lives">3</span></span>
+                </div>
+            </div>
+            <div id="progressBar">
+                <div id="progress"></div>
+            </div>
+        </div>
+
+        <div id="instructions">
+            <h2>🌹 Saint Bernard's Rose Quest 🌹</h2>
+            <p style="margin: 15px 0; font-size: 20px;">Help the brave Saint Bernard find the magical white rose for his beloved owner!</p>
+            
+            <div class="controls-box">
+                <p><strong>🎮 Controls:</strong></p>
+                <p>← → Arrow Keys - Move</p>
+                <p>⬆️ Up Arrow - Jump</p>
+            </div>
+            
+            <div class="game-rules">
+                <p>✨ Collect sparkling gummy clusters<br>⚠️ Avoid dangerous hair gel bottles<br>🌸 Find the mystical white rose</p>
+            </div>
+            
+            <button onclick="startGame()" style="margin-top: 20px;">Begin Adventure!</button>
+        </div>
+
+        <div id="winMessage">
+            <h2>🎉 Quest Complete! 🎉</h2>
+            <p>The noble Saint Bernard has returned with the white rose!</p>
+            <p style="margin: 15px 0;">His owner's heart fills with joy! <span class="heart">❤️</span></p>
+            <div style="font-size: 20px; margin: 15px 0;">Final Score: <span id="finalScore">0</span></div>
+            <button onclick="restartGame()">New Adventure</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameStarted = false;
+        let gameWon = false;
+        let score = 0;
+        let lives = 3;
+        let progress = 0;
+        let animationFrame = 0;
+        let camera = { x: 0, y: 0 };
+        let particles = [];
+        let keys = {};
+
+        // Player object
+        const player = {
+            x: 100,
+            y: 300,
+            width: 70,
+            height: 55,
+            velX: 0,
+            velY: 0,
+            jumping: false,
+            grounded: false,
+            direction: 1,
+            animFrame: 0,
+            invulnerable: 0
+        };
+
+        // Owner object
+        const owner = {
+            x: 50,
+            y: 290,
+            width: 45,
+            height: 70,
+            animFrame: 0
+        };
+
+        // Rose object
+        const rose = {
+            x: 3200,
+            y: 250,
+            width: 35,
+            height: 45,
+            collected: false,
+            sparkles: []
+        };
+
+        // Platforms with bigger gaps (pitfalls)
+        const platforms = [
+            // Ground platforms with bigger gaps (pitfalls)
+            {x: 0, y: 400, width: 200, height: 100, type: 'grass'},
+            {x: 350, y: 400, width: 150, height: 100, type: 'grass'},
+            {x: 650, y: 400, width: 180, height: 100, type: 'grass'},
+            {x: 980, y: 400, width: 140, height: 100, type: 'grass'},
+            {x: 1280, y: 400, width: 160, height: 100, type: 'grass'},
+            {x: 1600, y: 400, width: 150, height: 100, type: 'grass'},
+            {x: 1900, y: 400, width: 170, height: 100, type: 'grass'},
+            {x: 2220, y: 400, width: 140, height: 100, type: 'grass'},
+            {x: 2520, y: 400, width: 180, height: 100, type: 'grass'},
+            {x: 2850, y: 400, width: 450, height: 100, type: 'grass'},
+            
+            // Floating platforms
+            {x: 350, y: 320, width: 120, height: 25, type: 'wood'},
+            {x: 600, y: 280, width: 120, height: 25, type: 'wood'},
+            {x: 900, y: 320, width: 100, height: 25, type: 'wood'},
+            {x: 1150, y: 250, width: 120, height: 25, type: 'wood'},
+            {x: 1400, y: 320, width: 100, height: 25, type: 'wood'},
+            {x: 1650, y: 220, width: 130, height: 25, type: 'wood'},
+            {x: 1900, y: 290, width: 100, height: 25, type: 'wood'},
+            {x: 2150, y: 200, width: 120, height: 25, type: 'wood'},
+            {x: 2400, y: 320, width: 100, height: 25, type: 'wood'},
+            {x: 2650, y: 280, width: 120, height: 25, type: 'wood'}
+        ];
+
+        // Gummy clusters
+        const gummyClusters = [
+            {x: 370, y: 290, collected: false, sparkles: []},
+            {x: 620, y: 250, collected: false, sparkles: []},
+            {x: 920, y: 290, collected: false, sparkles: []},
+            {x: 1170, y: 220, collected: false, sparkles: []},
+            {x: 1420, y: 290, collected: false, sparkles: []},
+            {x: 1670, y: 190, collected: false, sparkles: []},
+            {x: 1920, y: 260, collected: false, sparkles: []},
+            {x: 2170, y: 170, collected: false, sparkles: []},
+            {x: 2420, y: 290, collected: false, sparkles: []},
+            {x: 2670, y: 250, collected: false, sparkles: []},
+            {x: 2900, y: 370, collected: false, sparkles: []},
+            {x: 3000, y: 370, collected: false, sparkles: []}
+        ];
+
+        // Hair gel bottles - positioned to avoid pitfalls and not overlap clusters
+        const hairGelBottles = [
+            // Ground level gel bottles - positioned on solid platforms
+            {x: 120, y: 370, sparks: []}, // On first platform
+            {x: 420, y: 370, sparks: []}, // On second platform  
+            {x: 720, y: 370, sparks: []}, // On third platform
+            {x: 1050, y: 370, sparks: []}, // On fourth platform
+            {x: 1350, y: 370, sparks: []}, // On fifth platform
+            {x: 1970, y: 370, sparks: []}, // On seventh platform
+            {x: 2290, y: 370, sparks: []}, // On eighth platform
+            {x: 2590, y: 370, sparks: []}, // On ninth platform
+            
+            // Platform gel bottles - positioned to not overlap clusters
+            {x: 390, y: 295, sparks: []}, // On first floating platform (offset from cluster)
+            {x: 940, y: 295, sparks: []}, // On third floating platform (offset from cluster)
+            {x: 1440, y: 295, sparks: []}, // On fifth floating platform (offset from cluster)
+            {x: 2440, y: 295, sparks: []} // On ninth floating platform (offset from cluster)
+        ];
+
+        // Clouds for background
+        const clouds = [
+            {x: 200, y: 50, size: 80, speed: 0.2},
+            {x: 500, y: 80, size: 60, speed: 0.15},
+            {x: 800, y: 40, size: 100, speed: 0.25},
+            {x: 1200, y: 70, size: 70, speed: 0.18},
+            {x: 1600, y: 45, size: 90, speed: 0.22},
+            {x: 2000, y: 85, size: 65, speed: 0.16},
+            {x: 2400, y: 55, size: 85, speed: 0.24}
+        ];
+
+        // Input handling
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            e.preventDefault();
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+            e.preventDefault();
+        });
+
+        // Utility functions
+        function createParticle(x, y, color, velX = 0, velY = 0, life = 60) {
+            return {
+                x, y, color, velX, velY, life, maxLife: life, size: Math.random() * 4 + 2
+            };
+        }
+
+        function updateParticles() {
+            particles = particles.filter(p => {
+                p.x += p.velX;
+                p.y += p.velY;
+                p.velY += 0.1; // gravity
+                p.life--;
+                return p.life > 0;
+            });
+        }
+
+        function drawParticles() {
+            particles.forEach(p => {
+                const alpha = p.life / p.maxLife;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        // Drawing functions
+        function drawPlayer() {
+            ctx.save();
+            
+            if (player.invulnerable > 0 && Math.floor(animationFrame / 5) % 2) {
+                ctx.globalAlpha = 0.5;
+            }
+            
+            const centerX = player.x + player.width / 2;
+            if (player.direction === -1) {
+                ctx.scale(-1, 1);
+                ctx.translate(-centerX * 2, 0);
+            }
+
+            // Enhanced shadow with soft edges
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(player.x + player.width/2, player.y + player.height + 5, player.width/2, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Body with gradient effect
+            const bodyGradient = ctx.createLinearGradient(player.x, player.y + 25, player.x, player.y + 50);
+            bodyGradient.addColorStop(0, '#daa520');
+            bodyGradient.addColorStop(1, '#b8860b');
+            ctx.fillStyle = bodyGradient;
+            ctx.fillRect(player.x, player.y + 25, player.width - 15, 25);
+            
+            // Head with gradient
+            const headGradient = ctx.createLinearGradient(player.x + 40, player.y, player.x + 40, player.y + 30);
+            headGradient.addColorStop(0, '#8b4513');
+            headGradient.addColorStop(1, '#654321');
+            ctx.fillStyle = headGradient;
+            ctx.fillRect(player.x + 40, player.y, 30, 30);
+            
+            // White markings with soft edges
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(player.x + 43, player.y + 3, 24, 20);
+            ctx.fillRect(player.x + 5, player.y + 28, 25, 18);
+            
+            // Enhanced nose with highlight
+            ctx.fillStyle = '#000';
+            ctx.fillRect(player.x + 65, player.y + 15, 4, 3);
+            ctx.fillStyle = '#333';
+            ctx.fillRect(player.x + 66, player.y + 16, 2, 1);
+            
+            // Eyes with pupils and highlights
+            ctx.fillStyle = '#000';
+            ctx.fillRect(player.x + 45, player.y + 8, 4, 4);
+            ctx.fillRect(player.x + 58, player.y + 8, 4, 4);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(player.x + 46, player.y + 9, 1, 1);
+            ctx.fillRect(player.x + 59, player.y + 9, 1, 1);
+            
+            // Legs with enhanced animation
+            const legOffset = Math.sin(animationFrame * 0.3) * 3;
+            const legGradient = ctx.createLinearGradient(0, player.y + 40, 0, player.y + 55);
+            legGradient.addColorStop(0, '#daa520');
+            legGradient.addColorStop(1, '#b8860b');
+            ctx.fillStyle = legGradient;
+            ctx.fillRect(player.x + 8, player.y + 40 + legOffset, 12, 15);
+            ctx.fillRect(player.x + 25, player.y + 40 - legOffset, 12, 15);
+            ctx.fillRect(player.x + 42, player.y + 40 + legOffset, 12, 15);
+            ctx.fillRect(player.x + 55, player.y + 40 - legOffset, 12, 15);
+
+            // Enhanced tail with curve
+            const tailWag = Math.sin(animationFrame * 0.4) * 12;
+            const tailCurve = Math.cos(animationFrame * 0.4) * 3;
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(player.x - 10 + tailWag, player.y + 18 + tailCurve, 15, 6);
+            
+            // Ears
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(player.x + 38, player.y - 5, 8, 12);
+            ctx.fillRect(player.x + 64, player.y - 5, 8, 12);
+
+            ctx.restore();
+        }
+
+        function drawOwner() {
+            if (gameWon && camera.x > 200) return;
+            
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.beginPath();
+            ctx.ellipse(owner.x + owner.width/2, owner.y + owner.height + 5, owner.width/2, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Dress
+            ctx.fillStyle = '#ff69b4';
+            ctx.fillRect(owner.x + 5, owner.y + 35, owner.width - 10, 35);
+            
+            // Head
+            ctx.fillStyle = '#ffdbac';
+            ctx.fillRect(owner.x + 8, owner.y + 5, 30, 32);
+            
+            // Hair
+            ctx.fillStyle = '#ff6347';
+            ctx.fillRect(owner.x + 3, owner.y, 40, 20);
+            
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.fillRect(owner.x + 13, owner.y + 15, 3, 3);
+            ctx.fillRect(owner.x + 28, owner.y + 15, 3, 3);
+            
+            // Smile
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(owner.x + 23, owner.y + 22, 8, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+        }
+
+        function drawPlatforms() {
+            platforms.forEach(platform => {
+                if (platform.type === 'grass') {
+                    // Grass platform with enhanced gradient
+                    const grassGradient = ctx.createLinearGradient(platform.x, platform.y, platform.x, platform.y + platform.height);
+                    grassGradient.addColorStop(0, '#228b22');
+                    grassGradient.addColorStop(0.3, '#32cd32');
+                    grassGradient.addColorStop(1, '#654321');
+                    ctx.fillStyle = grassGradient;
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                    
+                    // Animated grass blades
+                    ctx.fillStyle = '#228b22';
+                    for (let i = 0; i < platform.width; i += 10) {
+                        const grassHeight = Math.sin(i * 0.1 + animationFrame * 0.05) * 3 + 5;
+                        ctx.fillRect(platform.x + i, platform.y - grassHeight, 2, grassHeight);
+                    }
+                } else {
+                    // Wood platform with gradient
+                    const woodGradient = ctx.createLinearGradient(platform.x, platform.y, platform.x, platform.y + platform.height);
+                    woodGradient.addColorStop(0, '#deb887');
+                    woodGradient.addColorStop(1, '#8b7355');
+                    ctx.fillStyle = woodGradient;
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                    
+                    // Wood grain
+                    ctx.strokeStyle = '#654321';
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i < platform.width; i += 20) {
+                        ctx.beginPath();
+                        ctx.moveTo(platform.x + i, platform.y);
+                        ctx.lineTo(platform.x + i, platform.y + platform.height);
+                        ctx.stroke();
+                    }
+                }
+            });
+        }
+
+        function drawGummyClusters() {
+            gummyClusters.forEach(cluster => {
+                if (cluster.collected) return;
+                
+                // Add sparkles
+                if (Math.random() < 0.3) {
+                    cluster.sparkles.push({
+                        x: cluster.x + Math.random() * 20,
+                        y: cluster.y + Math.random() * 20,
+                        life: 30,
+                        size: Math.random() * 3 + 1
+                    });
+                }
+                
+                // Update sparkles
+                cluster.sparkles = cluster.sparkles.filter(sparkle => {
+                    sparkle.life--;
+                    sparkle.y -= 1;
+                    return sparkle.life > 0;
+                });
+                
+                // Draw sparkles
+                cluster.sparkles.forEach(sparkle => {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${sparkle.life / 30})`;
+                    ctx.fillRect(sparkle.x, sparkle.y, sparkle.size, sparkle.size);
+                });
+                
+                // Main cluster with glow effect
+                ctx.shadowColor = '#ff1493';
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = '#ff1493';
+                ctx.fillRect(cluster.x, cluster.y, 18, 18);
+                ctx.fillStyle = '#ff69b4';
+                ctx.fillRect(cluster.x + 3, cluster.y + 3, 12, 12);
+                ctx.fillStyle = '#ffb6c1';
+                ctx.fillRect(cluster.x + 6, cluster.y + 6, 6, 6);
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function drawHairGelBottles() {
+            hairGelBottles.forEach(bottle => {
+                // Add enhanced danger sparks
+                if (Math.random() < 0.3) {
+                    bottle.sparks.push({
+                        x: bottle.x + Math.random() * 25,
+                        y: bottle.y + Math.random() * 35,
+                        life: 25,
+                        velX: (Math.random() - 0.5) * 3,
+                        velY: Math.random() * -3
+                    });
+                }
+                
+                // Update sparks
+                bottle.sparks = bottle.sparks.filter(spark => {
+                    spark.x += spark.velX;
+                    spark.y += spark.velY;
+                    spark.life--;
+                    return spark.life > 0;
+                });
+                
+                // Draw enhanced sparks
+                bottle.sparks.forEach(spark => {
+                    const alpha = spark.life / 25;
+                    ctx.fillStyle = `rgba(255, 50, 50, ${alpha})`;
+                    ctx.fillRect(spark.x, spark.y, 3, 3);
+                });
+                
+                // Bottle with glow effect
+                ctx.shadowColor = '#4169e1';
+                ctx.shadowBlur = 8;
+                
+                // Bottle gradient
+                const bottleGradient = ctx.createLinearGradient(bottle.x, bottle.y, bottle.x + 25, bottle.y + 35);
+                bottleGradient.addColorStop(0, '#6495ed');
+                bottleGradient.addColorStop(0.5, '#4169e1');
+                bottleGradient.addColorStop(1, '#191970');
+                ctx.fillStyle = bottleGradient;
+                ctx.fillRect(bottle.x, bottle.y, 25, 35);
+                
+                // Cap with metallic effect
+                const capGradient = ctx.createLinearGradient(bottle.x + 5, bottle.y - 5, bottle.x + 20, bottle.y + 3);
+                capGradient.addColorStop(0, '#333');
+                capGradient.addColorStop(0.5, '#000080');
+                capGradient.addColorStop(1, '#000');
+                ctx.fillStyle = capGradient;
+                ctx.fillRect(bottle.x + 5, bottle.y - 5, 15, 8);
+                
+                // Enhanced label with warning symbol
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(bottle.x + 3, bottle.y + 8, 19, 18);
+                ctx.fillStyle = '#ff0000';
+                ctx.font = 'bold 6px Arial';
+                ctx.fillText('⚠ GEL', bottle.x + 5, bottle.y + 16);
+                ctx.fillStyle = '#000';
+                ctx.font = '6px Arial';
+                ctx.fillText('DANGER', bottle.x + 4, bottle.y + 23);
+                
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function drawRose() {
+            if (rose.collected) return;
+            
+            // Add magical sparkles
+            if (Math.random() < 0.4) {
+                rose.sparkles.push({
+                    x: rose.x + Math.random() * 35,
+                    y: rose.y + Math.random() * 45,
+                    life: 40,
+                    size: Math.random() * 4 + 2,
+                    color: `hsl(${Math.random() * 60 + 300}, 100%, ${Math.random() * 30 + 70}%)`
+                });
+            }
+            
+            // Update sparkles
+            rose.sparkles = rose.sparkles.filter(sparkle => {
+                sparkle.life--;
+                sparkle.y -= 2;
+                sparkle.x += Math.sin(sparkle.life * 0.1) * 0.5;
+                return sparkle.life > 0;
+            });
+            
+            // Draw sparkles
+            rose.sparkles.forEach(sparkle => {
+                ctx.fillStyle = sparkle.color;
+                ctx.globalAlpha = sparkle.life / 40;
+                ctx.fillRect(sparkle.x, sparkle.y, sparkle.size, sparkle.size);
+            });
+            ctx.globalAlpha = 1;
+            
+            // Rose glow
+            ctx.shadowColor = '#fff';
+            ctx.shadowBlur = 15;
+            
+            // Stem
+            ctx.fillStyle = '#228b22';
+            ctx.fillRect(rose.x + 15, rose.y + 20, 8, 30);
+            
+            // Rose petals with layers
+            const petals = 12;
+            for (let layer = 0; layer < 3; layer++) {
+                const radius = 18 - layer * 4;
+                for (let i = 0; i < petals; i++) {
+                    const angle = (i * Math.PI * 2) / petals + layer * 0.3;
+                    const x = rose.x + 18 + Math.cos(angle) * radius;
+                    const y = rose.y + 15 + Math.sin(angle) * radius;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${0.9 - layer * 0.2})`;
+                    ctx.fillRect(x, y, 6 - layer, 6 - layer);
+                }
+            }
+            
+            // Center
+            ctx.fillStyle = '#fffacd';
+            ctx.fillRect(rose.x + 15, rose.y + 12, 8, 8);
+            
+            ctx.shadowBlur = 0;
+        }
+
+        function drawClouds() {
+            clouds.forEach(cloud => {
+                cloud.x -= cloud.speed;
+                if (cloud.x < -cloud.size) {
+                    cloud.x = 3500;
+                }
+                
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.beginPath();
+                ctx.arc(cloud.x, cloud.y, cloud.size / 2, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.size / 3, cloud.y, cloud.size / 3, 0, Math.PI * 2);
+                ctx.arc(cloud.x - cloud.size / 3, cloud.y, cloud.size / 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Game functions
+        function startGame() {
+            document.getElementById('instructions').style.display = 'none';
+            gameStarted = true;
+            gameLoop();
+        }
+
+        function restartGame() {
+            // Reset all game state
+            score = 0;
+            lives = 3;
+            progress = 0;
+            player.x = 100;
+            player.y = 300;
+            player.velX = 0;
+            player.velY = 0;
+            player.invulnerable = 0;
+            camera.x = 0;
+            rose.collected = false;
+            rose.x = 3200;
+            rose.y = 250;
+            rose.sparkles = [];
+            gameWon = false;
+            particles = [];
+            
+            gummyClusters.forEach(cluster => {
+                cluster.collected = false;
+                cluster.sparkles = [];
+            });
+            
+            hairGelBottles.forEach(bottle => bottle.sparks = []);
+            
+            // Update UI
+            updateUI();
+            
+            document.getElementById('winMessage').style.display = 'none';
+            gameStarted = true;
+            gameLoop();
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('lives').textContent = lives;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function update() {
+            if (!gameStarted || gameWon) return;
+            
+            animationFrame++;
+            
+            if (player.invulnerable > 0) {
+                player.invulnerable--;
+            }
+
+            // Player movement
+            if (keys['ArrowLeft']) {
+                player.velX = Math.max(player.velX - 0.8, -7);
+                player.direction = -1;
+            } else if (keys['ArrowRight']) {
+                player.velX = Math.min(player.velX + 0.8, 7);
+                player.direction = 1;
+            } else {
+                player.velX *= 0.85;
+            }
+
+            // Jumping with up arrow key
+            if (keys['ArrowUp'] && player.grounded) {
+                player.velY = -18;
+                player.jumping = true;
+                player.grounded = false;
+                
+                // Jump particles
+                for (let i = 0; i < 8; i++) {
+                    particles.push(createParticle(
+                        player.x + player.width / 2 + (Math.random() - 0.5) * 20,
+                        player.y + player.height,
+                        '#90EE90',
+                        (Math.random() - 0.5) * 4,
+                        Math.random() * -3 - 1,
+                        30
+                    ));
+                }
+            }
+
+            if (!keys['ArrowUp'] && player.velY < 0) {
+                player.velY *= 0.6;
+            }
+
+            // Apply gravity
+            player.velY = Math.min(player.velY + 0.8, 15);
+
+            // Update position
+            player.x += player.velX;
+            player.y += player.velY;
+
+            // Enhanced platform collision - solid platforms
+            player.grounded = false;
+            for (let platform of platforms) {
+                // Check if player overlaps with platform
+                if (player.x < platform.x + platform.width &&
+                    player.x + player.width > platform.x &&
+                    player.y < platform.y + platform.height &&
+                    player.y + player.height > platform.y) {
+                  
+                  // Landing on top (falling down)
+                  if (player.velY > 0 && 
+                      player.y < platform.y && 
+                      player.y + player.height <= platform.y + 15) {
+                    player.y = platform.y - player.height;
+                    player.velY = 0;
+                    player.grounded = true;
+                    player.jumping = false;
+                  }
+                  // Hitting from below (jumping up)
+                  else if (player.velY < 0 && 
+                           player.y > platform.y + platform.height - 15) {
+                    player.y = platform.y + platform.height;
+                    player.velY = 0;
+                  }
+                  // Hitting from left side
+                  else if (player.velX > 0 && 
+                           player.x < platform.x) {
+                    player.x = platform.x - player.width;
+                    player.velX = 0;
+                  }
+                  // Hitting from right side
+                  else if (player.velX < 0 && 
+                           player.x > platform.x + platform.width) {
+                    player.x = platform.x + platform.width;
+                    player.velX = 0;
+                  }
+                }
+              }
+
+            // Collect gummy clusters
+            for (let cluster of gummyClusters) {
+                if (!cluster.collected &&
+                    player.x < cluster.x + 20 &&
+                    player.x + player.width > cluster.x &&
+                    player.y < cluster.y + 20 &&
+                    player.y + player.height > cluster.y) {
+                    
+                    cluster.collected = true;
+                    score += 10;
+                    
+                    // Collection particles
+                    for (let i = 0; i < 15; i++) {
+                        particles.push(createParticle(
+                            cluster.x + 10,
+                            cluster.y + 10,
+                            '#FF69B4',
+                            (Math.random() - 0.5) * 6,
+                            (Math.random() - 0.5) * 6,
+                            40
+                        ));
+                    }
+                }
+            }
+
+            // Hazard collision
+            if (player.invulnerable <= 0) {
+                for (let bottle of hairGelBottles) {
+                    if (player.x < bottle.x + 25 &&
+                        player.x + player.width > bottle.x &&
+                        player.y < bottle.y + 35 &&
+                        player.y + player.height > bottle.y) {
+                        
+                        lives--;
+                        player.invulnerable = 120;
+                        
+                        // If player dies while holding rose, reset rose
+                        if (rose.collected && lives <= 0) {
+                            rose.collected = false;
+                            rose.x = 3200;
+                            rose.y = 250;
+                            rose.sparkles = [];
+                        }
+                        
+                        // Damage particles
+                        for (let i = 0; i < 20; i++) {
+                            particles.push(createParticle(
+                                player.x + player.width / 2,
+                                player.y + player.height / 2,
+                                '#FF0000',
+                                (Math.random() - 0.5) * 8,
+                                (Math.random() - 0.5) * 8,
+                                50
+                            ));
+                        }
+                        
+                        // Knockback
+                        player.velX = bottle.x > player.x ? -8 : 8;
+                        player.velY = -10;
+                        
+                        if (lives <= 0) {
+                            // Reset game
+                            setTimeout(() => {
+                                lives = 3;
+                                score = 0;
+                                player.x = 100;
+                                player.y = 300;
+                                player.velX = 0;
+                                player.velY = 0;
+                                player.invulnerable = 0;
+                                camera.x = 0;
+                                particles = [];
+                                gummyClusters.forEach(cluster => {
+                                    cluster.collected = false;
+                                    cluster.sparkles = [];
+                                });
+                                updateUI();
+                            }, 1000);
+                        }
+                    }
+                }
+            }
+
+            // Rose collection
+            if (!rose.collected &&
+                player.x < rose.x + rose.width &&
+                player.x + player.width > rose.x &&
+                player.y < rose.y + rose.height &&
+                player.y + player.height > rose.y) {
+                
+                rose.collected = true;
+                
+                // Rose collection particles
+                for (let i = 0; i < 30; i++) {
+                    particles.push(createParticle(
+                        rose.x + rose.width / 2,
+                        rose.y + rose.height / 2,
+                        '#FFFFFF',
+                        (Math.random() - 0.5) * 10,
+                        (Math.random() - 0.5) * 10,
+                        80
+                    ));
+                }
+            }
+
+            // Win condition
+            if (rose.collected && player.x <= owner.x + 100 && player.x >= owner.x - 50) {
+                gameWon = true;
+                document.getElementById('finalScore').textContent = score;
+                document.getElementById('winMessage').style.display = 'block';
+                
+                // Victory particles
+                for (let i = 0; i < 50; i++) {
+                    particles.push(createParticle(
+                        player.x + player.width / 2,
+                        player.y + player.height / 2,
+                        ['#FFD700', '#FF69B4', '#FFFFFF'][Math.floor(Math.random() * 3)],
+                        (Math.random() - 0.5) * 12,
+                        Math.random() * -8 - 2,
+                        100
+                    ));
+                }
+            }
+
+            // Pitfall detection with rose reset
+            if (player.y > 550) {
+                lives--;
+                player.invulnerable = 60;
+                
+                // If player dies while holding rose, reset rose
+                if (rose.collected && lives <= 0) {
+                    rose.collected = false;
+                    rose.x = 3200;
+                    rose.y = 250;
+                    rose.sparkles = [];
+                }
+                
+                if (lives <= 0) {
+                    // Full reset when losing last life - respawn at start
+                    setTimeout(() => {
+                        lives = 3;
+                        score = 0;
+                        player.x = 100;
+                        player.y = 300;
+                        player.velX = 0;
+                        player.velY = 0;
+                        player.invulnerable = 0;
+                        camera.x = 0;
+                        particles = [];
+                        gummyClusters.forEach(cluster => {
+                            cluster.collected = false;
+                            cluster.sparkles = [];
+                        });
+                        updateUI();
+                    }, 500);
+                } else {
+                    // Respawn at nearest safe platform
+                    player.x = Math.max(100, camera.x);
+                    player.y = 200;
+                    player.velX = 0;
+                    player.velY = 0;
+                }
+            }
+
+            // Smooth camera following
+            const targetCameraX = player.x - 300;
+            camera.x += (targetCameraX - camera.x) * 0.1;
+            if (camera.x < 0) camera.x = 0;
+            if (camera.x > 2500) camera.x = 2500;
+
+            // Update progress bar
+            progress = Math.min((player.x / 3200) * 100, 100);
+
+            // Update particles
+            updateParticles();
+
+            // Update UI
+            updateUI();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Enhanced sky gradient
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, '#87CEEB');
+            skyGradient.addColorStop(0.3, '#FFD700');
+            skyGradient.addColorStop(0.7, '#FF8C42');
+            skyGradient.addColorStop(1, '#FF6B35');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Sun with glow
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(150 - camera.x * 0.1, 80, 40, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Save context for camera
+            ctx.save();
+            ctx.translate(-camera.x, 0);
+
+            // Draw background elements
+            drawClouds();
+            drawPlatforms();
+
+            // Draw game objects
+            drawOwner();
+            drawPlayer();
+            drawGummyClusters();
+            drawHairGelBottles();
+            drawRose();
+            drawParticles();
+
+            ctx.restore();
+            
+            // Rose trail effect when collected
+            if (rose.collected) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                for (let i = 0; i < 10; i++) {
+                    const x = player.x - camera.x + Math.sin(animationFrame * 0.1 + i) * 20;
+                    const y = player.y + Math.cos(animationFrame * 0.1 + i) * 10;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        function gameLoop() {
+            if (!gameStarted) return;
+            
+            update();
+            draw();
+            
+            if (!gameWon) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Initialize UI
+        updateUI();
+    </script>
+</body>
+</html>
